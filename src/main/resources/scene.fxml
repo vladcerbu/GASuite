@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<TabPane side="LEFT" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainController">
+   <tabs>
+      <Tab closable="false" style="-fx-background-color: lightblue;" text="Generate">
+         <content>
+            <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="600.0" style="-fx-background-color: lightblue;">
+               <children>
+                  <Label layoutX="88.0" layoutY="14.0" text="GA-SUITE TEST GENERATION" textFill="#5900a2">
+                     <font>
+                        <Font name="Calibri Bold" size="36.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="66.0" layoutY="159.0" text="Min. Numerical Value:">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="311.0" layoutY="159.0" text="Max. Numerical Value:">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="66.0" layoutY="200.0" text="Max. String Length:">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="312.0" layoutY="200.0" text="Max. Solution Length:">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="66.0" layoutY="241.0" text="Strings contain:">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="stateLabel" alignment="TOP_LEFT" layoutX="25.0" layoutY="350.0" prefHeight="75.0" prefWidth="550.0" text="State: App Started" textFill="#03aa00" wrapText="true">
+                     <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="resultLabel" layoutX="25.0" layoutY="450.0" prefHeight="35.0" prefWidth="550.0" text="Result:" visible="false">
+                     <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font>
+                  </Label>
+                  <Button layoutX="66.0" layoutY="64.0" mnemonicParsing="false" onAction="#handleClassFileChoice" prefHeight="30.0" prefWidth="120.0" text="Choose Class File" />
+                  <Button layoutX="66.0" layoutY="107.0" mnemonicParsing="false" onAction="#handleResultFileChoice" prefHeight="30.0" prefWidth="120.0" text="Results File" />
+                  <TextField fx:id="classPathTextField" layoutX="207.0" layoutY="66.0" prefHeight="26.0" prefWidth="330.0" promptText="Full Path of the Target Class" />
+                  <TextField fx:id="resultPathTextField" layoutX="207.0" layoutY="110.0" prefHeight="26.0" prefWidth="330.0" promptText="Directory where the solutions will be saved" />
+                  <TextField fx:id="minNrTextField" layoutX="207.0" layoutY="156.0" prefHeight="26.0" prefWidth="80.0" promptText="Min nr." />
+                  <TextField fx:id="maxNrTextField" layoutX="456.0" layoutY="156.0" prefHeight="26.0" prefWidth="80.0" promptText="Max nr." />
+                  <TextField fx:id="strLengthTextField" layoutX="207.0" layoutY="197.0" prefHeight="26.0" prefWidth="80.0" promptText="Str. Length" />
+                  <TextField fx:id="solLengthTextField" layoutX="456.0" layoutY="197.0" prefHeight="26.0" prefWidth="80.0" promptText="Sol. Length" />
+                  <RadioButton fx:id="small1" layoutX="178.0" layoutY="242.0" mnemonicParsing="false" selected="true" text="Small letters">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="tog" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton fx:id="big2" layoutX="269.0" layoutY="242.0" mnemonicParsing="false" text="+Big letters" toggleGroup="$tog" />
+                  <RadioButton fx:id="numbers3" layoutX="366.0" layoutY="242.0" mnemonicParsing="false" text="+Numbers" toggleGroup="$tog" />
+                  <RadioButton fx:id="others4" layoutX="455.0" layoutY="242.0" mnemonicParsing="false" text="+Others" toggleGroup="$tog" />
+                  <CheckBox fx:id="firstCheckBox" layoutX="158.0" layoutY="281.0" mnemonicParsing="false" text="Only the first solution with 100% coverage">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </CheckBox>
+                  <Button fx:id="generateButton" layoutX="240.0" layoutY="310.0" mnemonicParsing="false" onAction="#handleGenerate" prefHeight="40.0" prefWidth="120.0" text="Generate" textFill="#018c11">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                  </Button>
+               </children>
+            </AnchorPane>
+         </content>
+      </Tab>
+      <Tab closable="false" style="-fx-background-color: lightgreen;" text="GA Params">
+         <content>
+            <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: lightgreen;">
+               <children>
+                  <Label layoutX="111.0" layoutY="26.0" text="Modify the algorithm's parameters">
+                     <font>
+                        <Font name="System Bold Italic" size="24.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="54.0" layoutY="112.0" text="Number of Generations">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="54.0" layoutY="194.0" text="Size of Population">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="54.0" layoutY="276.0" text="Crossover Probability">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label alignment="CENTER" layoutX="54.0" layoutY="326.0" prefHeight="78.0" prefWidth="232.0" text="Initial Addition Probability for Mutation" textAlignment="CENTER" wrapText="true">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="generationsNumberTextField" alignment="CENTER" layoutX="315.0" layoutY="97.0" prefHeight="57.0" prefWidth="162.0" promptText="Default: 25">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </TextField>
+                  <TextField fx:id="populationSizeTextField" alignment="CENTER" layoutX="315.0" layoutY="179.0" prefHeight="57.0" prefWidth="162.0" promptText="Default: 50">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </TextField>
+                  <TextField fx:id="crossoverProbabilityTextField" alignment="CENTER" layoutX="315.0" layoutY="261.0" prefHeight="57.0" prefWidth="162.0" promptText="Default: 0.5">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </TextField>
+                  <TextField fx:id="additionProbabilityTextField" alignment="CENTER" layoutX="315.0" layoutY="337.0" prefHeight="57.0" prefWidth="162.0" promptText="Default: 0.5">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </TextField>
+               </children>
+            </AnchorPane>
+         </content>
+      </Tab>
+   </tabs>
+</TabPane>

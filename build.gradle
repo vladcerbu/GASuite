@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+    id 'application'
+    id "com.github.johnrengelman.shadow" version "5.2.0"
+    id "org.sonarqube" version "3.3"
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "TestGeneration"
+        property "sonar.host.url", "http://localhost:9000"
+        property "sonar.login", "1dcb1f9568dc884a22d11356d71775f3f1fa82e9"
+    }
+}
+
+application {
+    mainClassName = 'application.Main'
+}
+
+version '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.testng:testng:7.1.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation group: 'fr.inria.gforge.spoon', name: 'spoon-core', version: '9.0.0'
+    implementation group: 'org.jacoco', name: 'org.jacoco.core', version: '0.8.7'
+    compile "org.slf4j:slf4j-simple:1.6.1"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+javafx {
+    version = "15.0.1"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+sourceCompatibility = JavaVersion.VERSION_15
+targetCompatibility = JavaVersion.VERSION_15
