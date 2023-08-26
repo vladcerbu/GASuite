@@ -25,7 +25,7 @@ public class TestSuite {
     }
 
     public ArrayList<TestCase> getTestCases() {
-        return testCases;
+        return this.testCases;
     }
 
     public void setTestCases(ArrayList<TestCase> testCases) {
@@ -33,7 +33,7 @@ public class TestSuite {
     }
 
     public Double getFitness() {
-        return fitness;
+        return this.fitness;
     }
 
     public void setFitness(Double fitness) {
@@ -41,7 +41,7 @@ public class TestSuite {
     }
 
     public String getClassName() {
-        return className;
+        return this.className;
     }
 
     @Override
@@ -52,9 +52,9 @@ public class TestSuite {
                 import static org.junit.jupiter.api.Assertions.*;
                                 
                 class\040""" + this.className + "Test {\n\n");
-        for (int i=0; i < testCases.size(); ++i) {
-            testCases.get(i).setTestId(Integer.toString(i + 1));
-            code.append(testCases.get(i).toString());
+        for (int i=0; i < this.testCases.size(); ++i) {
+            this.testCases.get(i).setTestId(Integer.toString(i + 1));
+            code.append(this.testCases.get(i).toString());
             code.append("\n\n");
         }
         code.append("}\n");

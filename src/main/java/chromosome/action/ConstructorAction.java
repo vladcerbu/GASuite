@@ -8,7 +8,11 @@ public class ConstructorAction extends Action {
         super(constructor, varName);
     }
 
-    private ConstructorAction() {
+    public ConstructorAction(CtConstructor<Object> constructor) {
+        super(constructor);
+    }
+
+    public ConstructorAction() {
         super();
     }
 
@@ -17,12 +21,17 @@ public class ConstructorAction extends Action {
         ConstructorAction copy = new ConstructorAction();
         copy.setType(this.type);
         copy.setVarName(this.varName);
+        copy.setValues(this.values);
         copy.setParamTypes(this.paramTypes);
+        copy.setConstructorParameters(this.constructorParameters);
         return copy;
     }
 
     @Override
     public String toString() {
-        return super.getType() + " " + super.getVarName() + " = new " + super.getType() + "(";
+        if (this.varName != null)
+            return super.getType() + " " + super.getVarName() + " = new " + super.getType() + "(" + super.parametersToString() + ");";
+        else
+            return "new " + super.getType() + "(" + super.parametersToString() + ")";
     }
 }

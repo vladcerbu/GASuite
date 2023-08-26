@@ -4,16 +4,14 @@ import chromosome.TestCase;
 import chromosome.TestSuite;
 import chromosome.action.Action;
 import org.apache.commons.io.FileUtils;
-import org.jacoco.core.analysis.Analyzer;
-import org.jacoco.core.analysis.CoverageBuilder;
-import org.jacoco.core.analysis.IClassCoverage;
-import org.jacoco.core.analysis.ICounter;
+import org.jacoco.core.analysis.*;
 import org.jacoco.core.data.ExecutionDataStore;
 import org.jacoco.core.data.SessionInfoStore;
 import org.jacoco.core.instr.Instrumenter;
 import org.jacoco.core.runtime.IRuntime;
 import org.jacoco.core.runtime.LoggerRuntime;
 import org.jacoco.core.runtime.RuntimeData;
+import parser.SpoonParser;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -23,12 +21,12 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 public final class TestSuiteExecutor {
+    private final String spoonDirectory;
+    private final String runDirectory;
+    private final Set<String> nestedNames;
 
     // Class that will help with loading the instrumented java code into memory
     public static class MemoryClassLoader extends ClassLoader {
@@ -51,12 +49,16 @@ public final class TestSuiteExecutor {
 
     }
 
-    public TestSuiteExecutor() { }
+    public TestSuiteExecutor(Set<String> nestedNames, String spoonDirectory, String runDirectory) {
+        this.nestedNames = nestedNames;
+        this.spoonDirectory = spoonDirectory;
+        this.runDirectory = runDirectory;
+    }
 
     // Preparing the evaluation by modifying the tested class. We make it so that it implements
     // the Runnable interface and then add the test cases to the run() method
     private void prepareEvaluation(TestSuite testSuite) throws Exception {
-        String fileName = System.getProperty("java.io.tmpdir") + "/ga_suite/spooned/" + testSuite.getClassName() + ".java";
+        String fileName = this.spoonDirectory + "\\" + testSuite.getClassName() + ".java";
         String text = Files.readString(Paths.get(fileName));
         for (int i = 0; i < text.length(); ++i) {
             if (text.charAt(i) == '{') {
@@ -66,27 +68,10 @@ public final class TestSuiteExecutor {
         }
         StringBuilder newCode = new StringBuilder("\n\t@Override\n\tpublic void run() {\n");
         for (TestCase testCase : testSuite.getTestCases()) {
-            Queue<String> valueQ = new LinkedList<>(testCase.getValues());
             for (Action action : testCase.getActions()) {
                 newCode.append("\t\t");
                 newCode.append(action.toString());
-                int commas = action.getParamTypes().size() - 1;
-                for (String parType : action.getParamTypes()) {
-                    String value = valueQ.remove();
-                    switch (parType) {
-                        case "int", "Integer" -> newCode.append(Integer.valueOf(value));
-                        case "double", "Double" -> newCode.append(Double.valueOf(value));
-                        case "float", "Float" -> newCode.append(Float.valueOf(value)).append("f");
-                        case "boolean", "Boolean" -> newCode.append(Boolean.valueOf(value));
-                        case "String" -> newCode.append("\"").append(value).append("\"");
-                        default -> newCode.append("null");
-                    }
-                    if (commas > 0) {
-                        newCode.append(", ");
-                        commas--;
-                    }
-                }
-                newCode.append(");\n");
+                newCode.append("\n");
             }
         }
         newCode.append("\t}");
@@ -96,7 +81,7 @@ public final class TestSuiteExecutor {
                 break;
             }
         }
-        File temp = new File(System.getProperty("java.io.tmpdir") + "/ga_suite/run/" + testSuite.getClassName() + ".java");
+        File temp = new File(this.runDirectory + "\\" + testSuite.getClassName() + ".java");
         temp.getParentFile().mkdirs();
         FileWriter myWriter = new FileWriter(temp);
         myWriter.write(text);
@@ -117,11 +102,13 @@ public final class TestSuiteExecutor {
 
     // Main method of the executor. We receive a test suite and we return its fitness:
     // number of branches covered / total number of branches
+    // This is done only for the methods of the class under test
     public double calculateFitness(TestSuite testSuite) throws Exception {
         this.prepareEvaluation(testSuite);
+        // Compiling the class
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        compiler.run(null, null, null, System.getProperty("java.io.tmpdir") + "/ga_suite/run/" + testSuite.getClassName() + ".java");
-        File resource = new File(System.getProperty("java.io.tmpdir") + "/ga_suite/run/" + testSuite.getClassName() + ".class");
+        compiler.run(null, null, null, this.runDirectory + "\\" + testSuite.getClassName() + ".java");
+        File resource = new File(this.runDirectory + "\\" + testSuite.getClassName() + ".class");
         final String targetName = testSuite.getClassName();
 
         // For instrumentation and runtime we need an IRuntime instance to collect execution data
@@ -134,14 +121,24 @@ public final class TestSuiteExecutor {
         final byte[] instrumented = instr.instrument(original, targetName);
         original.close();
 
-        // Starting up the runtime
-        final RuntimeData data = new RuntimeData();
-        runtime.startup(data);
-
         // Using a special class loader to directly load the instrumented class definition from a byte array
         final MemoryClassLoader memoryClassLoader = new MemoryClassLoader();
         memoryClassLoader.addDefinition(targetName, instrumented);
-        final Class<?> targetClass = memoryClassLoader.loadClass(targetName);
+        final Class<?> targetClass = memoryClassLoader.loadClass(targetName, false);
+
+        for (String nestedClassName : this.nestedNames) {
+            String nestedTargetName = testSuite.getClassName() + "$" + nestedClassName;
+            File nestedResource = new File(this.runDirectory + "\\" + nestedTargetName + ".class");
+            InputStream nestedOriginal = FileUtils.openInputStream(nestedResource);
+            final byte[] nestedInstrumented = instr.instrument(nestedOriginal, nestedTargetName);
+            nestedOriginal.close();
+            memoryClassLoader.addDefinition(nestedTargetName, nestedInstrumented);
+            memoryClassLoader.loadClass(nestedTargetName, false);
+        }
+
+        // Starting up the runtime
+        final RuntimeData data = new RuntimeData();
+        runtime.startup(data);
 
         // Here we execute our test target class through its Runnable interface
         final Constructor<?> constructor = targetClass.getConstructors()[0];
@@ -161,15 +158,31 @@ public final class TestSuiteExecutor {
         analyzer.analyzeClass(original, targetName);
         original.close();
 
+        // Calculating the coverage
         IClassCoverage cc = (IClassCoverage) coverageBuilder.getClasses().toArray()[0];
-        ICounter branchCounter = cc.getBranchCounter();
-        int coveredBranches = branchCounter.getCoveredCount(); // Number of covered branches
-        int totalBranches = branchCounter.getTotalCount(); // Number of total branches
+        ArrayList<IMethodCoverage> methodCoverageSet = (ArrayList<IMethodCoverage>) cc.getMethods();
+        int coveredBranches = 0; // Number of covered branches
+        int totalBranches = 0; // Number of total branches
+        for (IMethodCoverage methodCoverage : methodCoverageSet) {
+            if (!Objects.equals(methodCoverage.getName(), "<init>") && !Objects.equals(methodCoverage.getName(), "run")) {
+                methodCoverage.getBranchCounter();
+                ICounter branchCounter = methodCoverage.getBranchCounter();
+                coveredBranches += branchCounter.getCoveredCount();
+                totalBranches += branchCounter.getTotalCount();
+            }
+        }
+
+        // Delete files
+        File runFolder = new File(this.runDirectory);
+        File[] files = runFolder.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                //noinspection ResultOfMethodCallIgnored
+                file.delete();
+            }
+        }
         //noinspection ResultOfMethodCallIgnored
-        resource.delete();
-        resource = new File(System.getProperty("java.io.tmpdir") + "/ga_suite/run/" + testSuite.getClassName() + ".java");
-        //noinspection ResultOfMethodCallIgnored
-        resource.delete();
+        runFolder.delete();
         return (double) coveredBranches / totalBranches; // Resulting fitness
     }
 }

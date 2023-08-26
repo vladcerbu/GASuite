@@ -8,10 +8,10 @@ import java.io.IOException;
 
 public class ResultWriter {
 
-    private final String resultsFile;
+    private final String resultDirectory;
 
-    public ResultWriter(String resultsFile) {
-        this.resultsFile = resultsFile;
+    public ResultWriter(String resultDirectory) {
+        this.resultDirectory = resultDirectory;
     }
 
     /**
@@ -19,7 +19,7 @@ public class ResultWriter {
      * @param testSuite The Test Suite to be written
      */
     public void writeSuite(TestSuite testSuite) throws IOException {
-        String fileName = this.resultsFile + "/" + testSuite.getClassName() + "Test.java";
+        String fileName = this.resultDirectory + "\\" + testSuite.getClassName() + "Test.java";
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, false));
         writer.write(testSuite.toString());
         writer.close();

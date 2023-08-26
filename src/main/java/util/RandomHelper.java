@@ -1,18 +1,22 @@
 package util;
 
 import chromosome.action.Action;
+import chromosome.action.ConstructorAction;
+import parser.SpoonParser;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 public class RandomHelper {
     private final Random random = new Random();
+    private final SpoonParser spoonParser;
     private final int minNr;
     private final int maxNr;
     private final int maxStringLength;
     private final int stringType;
 
-    public RandomHelper(int minNr, int maxNr, int maxStringLength, int stringType) {
+    public RandomHelper(SpoonParser spoonParser, int minNr, int maxNr, int maxStringLength, int stringType) {
+        this.spoonParser = spoonParser;
         this.minNr = minNr;
         this.maxNr = maxNr;
         this.maxStringLength = maxStringLength;
@@ -23,7 +27,7 @@ public class RandomHelper {
      * @return a random Integer between minNr (inclusive) and maxNr (inclusive)
      */
     public int generateRandomInteger(int minNr, int maxNr) {
-        return random.nextInt(maxNr + 1 - minNr) + minNr;
+        return this.random.nextInt(maxNr + 1 - minNr) + minNr;
     }
 
     /**
@@ -37,7 +41,7 @@ public class RandomHelper {
      * @return a random Float between minNr (inclusive) and maxNr (inclusive)
      */
     public float generateRandomFloat(int minNr, int maxNr) {
-        return minNr + (maxNr - minNr) * random.nextFloat();
+        return minNr + (maxNr - minNr) * this.random.nextFloat();
     }
 
     /**
@@ -51,7 +55,7 @@ public class RandomHelper {
      * @return a random Double between minNr (inclusive) and maxNr (inclusive)
      */
     public double generateRandomDouble(int minNr, int maxNr) {
-        return minNr + (maxNr - minNr) * random.nextDouble();
+        return minNr + (maxNr - minNr) * this.random.nextDouble();
     }
 
     /**
@@ -65,7 +69,7 @@ public class RandomHelper {
      * @return a random Boolean
      */
     public boolean generateRandomBoolean() {
-        return random.nextBoolean();
+        return this.random.nextBoolean();
     }
 
     /**
@@ -102,35 +106,38 @@ public class RandomHelper {
     }
 
     /**
-     * Get random values according to the given Actions List
-     * @param actions List of Actions
-     * @return A list with the generated values, represented as Strings
+     * Generate random values for the given Action
+     * @param action The Action
      */
-    public ArrayList<String> getRandomValues(ArrayList<Action> actions) {
+    public void generateRandomValues(Action action) {
+        int constructorCount = 0;
         ArrayList<String> values = new ArrayList<>();
-        for (Action action : actions)
-            values.addAll(getRandomValues(action));
-        return values;
+        ArrayList<ConstructorAction> constructorParameters = new ArrayList<>();
+        for (String p : action.getParamTypes()) {
+            switch (p) {
+                case "int", "Integer" -> values.add(generateRandomIntegerString(this.minNr, this.maxNr));
+                case "float", "Float" -> values.add(generateRandomFloatString(this.minNr, this.maxNr));
+                case "double", "Double" -> values.add(generateRandomDoubleString(this.minNr, this.maxNr));
+                case "boolean", "Boolean" -> values.add(generateRandomBooleanString());
+                case "String" -> values.add(generateRandomString(this.maxStringLength, this.stringType));
+                default -> {
+                    constructorParameters.add(generateConstructorParameter(p));
+                    values.add("constructor_" + constructorCount++);
+                }
+            }
+        }
+        action.setValues(values);
+        action.setConstructorParameters(constructorParameters);
     }
 
     /**
-     * Get random values according to the given Action
-     * @param action The Action
-     * @return A list with the generated values, represented as Strings
+     * Generate a ConstructorAction for the given class, to be used as parameter
+     * @param className The name of the class for which we will generate the ConstructorAction
      */
-    public ArrayList<String> getRandomValues(Action action) {
-        ArrayList<String> values = new ArrayList<>();
-        for (String p : action.getParamTypes()) {
-            switch (p) {
-                case "int", "Integer" -> values.add(generateRandomIntegerString(minNr, maxNr));
-                case "float", "Float" -> values.add(generateRandomFloatString(minNr, maxNr));
-                case "double", "Double" -> values.add(generateRandomDoubleString(minNr, maxNr));
-                case "boolean", "Boolean" -> values.add(generateRandomBooleanString());
-                case "String" -> values.add(generateRandomString(maxStringLength, stringType));
-                default -> values.add("null");
-            }
-        }
-        return values;
+    private ConstructorAction generateConstructorParameter(String className) {
+        ConstructorAction constructorParam = new ConstructorAction(this.spoonParser.getConstructorByClassName(className));
+        generateRandomValues(constructorParam);
+        return constructorParam;
     }
 
     /**
@@ -141,7 +148,7 @@ public class RandomHelper {
     public String generateRandomVarName(int length) {
         int leftLimit = 97; // letter 'a'
         int rightLimit = 122; // letter 'z'
-        return random.ints(leftLimit, rightLimit + 1)
+        return this.random.ints(leftLimit, rightLimit + 1)
                 .limit(length)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
@@ -171,7 +178,7 @@ public class RandomHelper {
         int leftLimit = 65; // letter 'A'
         int rightLimit = 122; // letter 'z'
         maxStringLength = generateRandomInteger((maxStringLength + 1) / 2, maxStringLength + 1);
-        return random.ints(leftLimit, rightLimit + 1)
+        return this.random.ints(leftLimit, rightLimit + 1)
                 .filter(i -> (i >= 65 && i <= 90) || i >= 97)
                 .limit(maxStringLength)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
@@ -187,7 +194,7 @@ public class RandomHelper {
         int leftLimit = 48; // numeral '0'
         int rightLimit = 122; // letter 'z'
         maxStringLength = generateRandomInteger((maxStringLength + 1) / 2, maxStringLength + 1);
-        return random.ints(leftLimit, rightLimit + 1)
+        return this.random.ints(leftLimit, rightLimit + 1)
                 .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
                 .limit(maxStringLength)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
@@ -203,7 +210,7 @@ public class RandomHelper {
         int leftLimit = 35; // '#'
         int rightLimit = 126; // '~'
         maxStringLength = generateRandomInteger((maxStringLength + 1) / 2, maxStringLength + 1);
-        return random.ints(leftLimit, rightLimit + 1)
+        return this.random.ints(leftLimit, rightLimit + 1)
                 .filter(i -> i != 92) // no '\'
                 .limit(maxStringLength)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)

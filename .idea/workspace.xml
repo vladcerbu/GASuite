@@ -1,10 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="ANALYZE_TEST_SOURCES" value="false" />
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1a78db91-db32-49e8-9cb4-335e082251bf" name="Changes" comment="" />
+    <list default="true" id="1a78db91-db32-49e8-9cb4-335e082251bf" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/chromosome/TestCase.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/chromosome/TestCase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/chromosome/TestSuite.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/chromosome/TestSuite.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/chromosome/action/Action.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/chromosome/action/Action.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/chromosome/action/ConstructorAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/chromosome/action/ConstructorAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/chromosome/action/MethodAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/chromosome/action/MethodAction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/controller/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/controller/MainController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/executor/TestSuiteExecutor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/executor/TestSuiteExecutor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ga/GA.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ga/GA.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/parser/SpoonParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/parser/SpoonParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/util/RandomHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/util/RandomHelper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/writer/ResultWriter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/writer/ResultWriter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/config.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/scene.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/scene.fxml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -15,24 +37,58 @@
       <ProjectState />
     </projectState>
   </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <projects_view>
+          <tree_state>
+            <expand />
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
   <component name="ProjectId" id="2QoF1cEyqMxn3y9WY3Bx8qzEXif" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "master",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/vladu/Desktop/GA-Suite-Study-Automatic-First/StudyTests&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.gradle&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
+  <component name="RunManager">
+    <configuration name="Main" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="application.Main" />
+      <module name="GASuite.main" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -42,7 +98,24 @@
       <option name="presentableId" value="Default" />
       <updated>1686011814400</updated>
       <workItem from="1686011815886" duration="2000" />
+      <workItem from="1690478455593" duration="5437000" />
+      <workItem from="1690526682990" duration="10527000" />
+      <workItem from="1690621084323" duration="3904000" />
+      <workItem from="1691485371247" duration="1668000" />
+      <workItem from="1691650196606" duration="786000" />
+      <workItem from="1691667777470" duration="5187000" />
+      <workItem from="1691703671462" duration="2227000" />
+      <workItem from="1692631084489" duration="8922000" />
+      <workItem from="1692685707161" duration="22722000" />
+      <workItem from="1692773841654" duration="16143000" />
+      <workItem from="1692858536046" duration="11831000" />
+      <workItem from="1692894793674" duration="689000" />
+      <workItem from="1692896947376" duration="3940000" />
+      <workItem from="1693003583011" duration="13497000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
 </project>

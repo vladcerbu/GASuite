@@ -14,14 +14,21 @@ import writer.ResultWriter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class GA {
-    private String classPath;
-    private String resultFile;
+//    private final String origDirectory = "src\\main\\resources\\originals";
+    private final String tempDirectory = System.getProperty("java.io.tmpdir") + "\\ga_suite";
+//    private final String origDirectory = "src\\main\\resources\\originals";
+    private final String origDirectory = System.getProperty("java.io.tmpdir") + "\\ga_suite\\originals";
+//    private final String spoonDirectory = "src\\main\\resources\\spooned";
+    private final String spoonDirectory = System.getProperty("java.io.tmpdir") + "\\ga_suite\\spooned";
+//    private final String runDirectory = "src\\main\\resources\\run";
+    private final String runDirectory = System.getProperty("java.io.tmpdir") + "\\ga_suite\\run";
+    private String fullPath;
+    private String resultDirectory;
     private ResultWriter resultWriter;
     private TestSuiteExecutor executor;
     private RandomHelper randomHelper;
@@ -51,7 +58,6 @@ public class GA {
             return Integer.compare(o1.getTestCases().size(), o2.getTestCases().size());
     };
 
-    // Constructor
     public GA() { }
 
     public double getWorstFitness() {
@@ -65,7 +71,6 @@ public class GA {
         return total / population.size();
     }
 
-    // Getters and Setters section
     public double getExecutionTime() {
         return executionTime;
     }
@@ -81,12 +86,12 @@ public class GA {
             this.stringType = stringType;
     }
 
-    public void setClassPath(String classPath) {
-        this.classPath = classPath;
+    public void setFullPath(String fullPath) {
+        this.fullPath = fullPath;
     }
 
-    public void setResultFile(String resultFile) {
-        this.resultFile = resultFile;
+    public void setResultDirectory(String resultDirectory) {
+        this.resultDirectory = resultDirectory;
     }
 
     public void setPopulationSize(int populationSize) {
@@ -127,16 +132,35 @@ public class GA {
 
     // Checking maximum suite size and adjusting it if it is too small
     private void checkMaxSuiteSize() {
-        if (this.maxSuiteLength < 5 * this.spoonParser.getMethods().size())
-            this.maxSuiteLength = 5 * this.spoonParser.getMethods().size();
+        if (this.maxSuiteLength < 4 * this.spoonParser.getTestableMethods().size())
+            this.maxSuiteLength = 4 * this.spoonParser.getTestableMethods().size();
     }
 
     // Initializing the algorithm. Create necessary classes and generate random population
-    private void initialize() {
-        this.executor = new TestSuiteExecutor();
-        this.resultWriter = new ResultWriter(resultFile);
-        this.randomHelper = new RandomHelper(minNr, maxNr, maxStringLength, stringType);
-        this.spoonParser = new SpoonParser(classPath);
+    private void initialize() throws IOException {
+        if (Files.exists(Paths.get(this.origDirectory)))
+            this.deleteFolder(this.origDirectory);
+        if (Files.exists(Paths.get(this.spoonDirectory)))
+            this.deleteFolder(this.spoonDirectory);
+        if (Files.exists(Paths.get(this.tempDirectory)))
+            this.deleteFolder(this.tempDirectory);
+        Files.createDirectory(Paths.get(this.tempDirectory));
+        Files.createDirectory(Paths.get(this.spoonDirectory));
+        Files.createDirectory(Paths.get(this.origDirectory));
+
+        StringBuilder rootPathBuilder = new StringBuilder();
+        ArrayList<String> splitedPath = new ArrayList<>(List.of(this.fullPath.split("\\\\")));
+        for (String s : splitedPath) {
+            rootPathBuilder.append(s);
+            if (s.equals("java"))
+                break;
+            rootPathBuilder.append("\\");
+        }
+        String rootPath = rootPathBuilder.toString();
+        this.spoonParser = new SpoonParser(rootPath, this.fullPath, this.origDirectory, this.spoonDirectory);
+        this.executor = new TestSuiteExecutor(this.spoonParser.getNestedClasses(), this.spoonDirectory, this.runDirectory);
+        this.resultWriter = new ResultWriter(this.resultDirectory);
+        this.randomHelper = new RandomHelper(this.spoonParser, this.minNr, this.maxNr, this.maxStringLength, this.stringType);
         // Checking the maximum suite size and adjusting it accordingly
         this.checkMaxSuiteSize();
         // Generating random population to start with
@@ -144,24 +168,24 @@ public class GA {
         // Evaluating the population
         this.evaluatePopulation();
         // Sorting the population to have the best chromosome first
-        population.sort(comp);
+        this.population.sort(this.comp);
     }
 
     // Genetic Algorithm main function
     public void startAlgorithm() throws Exception {
         long start = System.nanoTime();
         this.initialize();
-        for (int gen = 0; gen < generations; gen++) {
+        for (int gen = 0; gen < this.generations; gen++) {
             // If the user checked the CheckBox for getting only the first found perfect solution, then we return it.
-            if (onlyFirst && population.get(0).getFitness() == 1.0)
+            if (this.onlyFirst && this.population.get(0).getFitness() == 1.0)
                 break;
             ArrayList<TestSuite> newPop = new ArrayList<>();
             // Elitism: The best suite from the previous generation is kept in the new population
-            newPop.add(new TestSuite(population.get(0)));
-            while (newPop.size() < populationSize) {
+            newPop.add(new TestSuite(this.population.get(0)));
+            while (newPop.size() < this.populationSize) {
                 ArrayList<TestSuite> offsprings = new ArrayList<>();
                 ArrayList<TestSuite> parents = this.select(); // Selecting parents
-                if (randomHelper.generateRandomDouble(0, 1) < crossoverProb) // Crossover if probability is met
+                if (this.randomHelper.generateRandomDouble(0, 1) < this.crossoverProb) // Crossover if probability is met
                     offsprings = this.crossover(new TestSuite(parents.get(0)), new TestSuite(parents.get(1)));
                 else // Else the offsprings will be the parents
                 {
@@ -179,7 +203,7 @@ public class GA {
                 double bestOffspringFitness = offsprings.get(0).getFitness() >= offsprings.get(1).getFitness() ? offsprings.get(0).getFitness() : offsprings.get(1).getFitness();
                 int lengthParents = parents.get(0).getTestCases().size() + parents.get(1).getTestCases().size();
                 int lengthOffsprings = offsprings.get(0).getTestCases().size() + offsprings.get(1).getTestCases().size();
-                int bestLength = population.get(0).getTestCases().size();
+                int bestLength = this.population.get(0).getTestCases().size();
                 // Checking to see if the new chromosomes are better than the parents and then decide which ones to add to the new population
                 if (bestOffspringFitness > bestParentFitness || (bestOffspringFitness == bestParentFitness && lengthOffsprings <= lengthParents))
                     for (int i = 0; i < offsprings.size(); ++i)
@@ -190,52 +214,52 @@ public class GA {
                 else
                     newPop.addAll(parents);
             }
-            population = newPop;
-            population.sort(comp);
+            this.population = newPop;
+            this.population.sort(comp);
             // If population is too big, we reduce it to the maximum size by eliminating the worst chromosomes
-            if (population.size() > populationSize) {
-                population.subList(populationSize, population.size()).clear();
+            if (this.population.size() > this.populationSize) {
+                this.population.subList(this.populationSize, this.population.size()).clear();
             }
         }
 
         // Write the resulted test suite (the best one)
         try {
-            resultWriter.writeSuite(population.get(0));
+            this.resultWriter.writeSuite(this.population.get(0));
         } catch (IOException e) {
             throw new Exception("Unable to write the result");
         }
 
-        // Delete files
-        File file = new File(System.getProperty("java.io.tmpdir") + "/ga_suite/spooned/" + population.get(0).getClassName() + ".java");
-        //noinspection ResultOfMethodCallIgnored
-        file.delete();
+        // Delete folders
+        deleteFolder(this.origDirectory);
+        deleteFolder(this.spoonDirectory);
+        deleteFolder(this.tempDirectory);
 
         // Calculate execution time
         long end = System.nanoTime();
-        executionTime = (double) (end - start) / 1E9;
+        this.executionTime = (double) (end - start) / 1E9;
     }
 
     // Selection operator - Rank-Based Selection
     private ArrayList<TestSuite> select() {
         ArrayList<TestSuite> selected = new ArrayList<>();
-        double sumRanks = populationSize * (populationSize + 1) / 2.0;
+        double sumRanks = this.populationSize * (this.populationSize + 1) / 2.0;
         double randomRank = randomHelper.generateRandomDouble(0, 1);
         double cumulativeSum = 0.0;
 
-        for (int i = 0; i < populationSize; ++i) {
-            cumulativeSum += (populationSize - i) / sumRanks;
+        for (int i = 0; i < this.populationSize; ++i) {
+            cumulativeSum += (this.populationSize - i) / sumRanks;
             if (cumulativeSum >= randomRank) {
-                selected.add(population.get(i));
+                selected.add(this.population.get(i));
                 break;
             }
         }
 
-        randomRank = randomHelper.generateRandomDouble(0, 1);
+        randomRank = this.randomHelper.generateRandomDouble(0, 1);
         cumulativeSum = 0.0;
-        for (int i = 0; i < populationSize; ++i) {
-            cumulativeSum += (populationSize - i) / sumRanks;
+        for (int i = 0; i < this.populationSize; ++i) {
+            cumulativeSum += (this.populationSize - i) / sumRanks;
             if (cumulativeSum >= randomRank) {
-                selected.add(population.get(i));
+                selected.add(this.population.get(i));
                 break;
             }
         }
@@ -246,7 +270,7 @@ public class GA {
     // Crossover operator - One-Point Crossover
     private ArrayList<TestSuite> crossover(TestSuite c1, TestSuite c2) {
         // Cutting point
-        double p = randomHelper.generateRandomDouble(0, 1);
+        double p = this.randomHelper.generateRandomDouble(0, 1);
         ArrayList<TestCase> tc1 = c1.getTestCases();
         ArrayList<TestCase> tc2 = c2.getTestCases();
         int mid1 = (int) (p * tc1.size());
@@ -276,39 +300,36 @@ public class GA {
         double prob, mutationType;
         for (TestCase currentTestCase : testCases) {
             // Checking which test cases to mutate based on the probability
-            prob = randomHelper.generateRandomDouble(0, 1);
+            prob = this.randomHelper.generateRandomDouble(0, 1);
             if (prob <= mutationProb) {
                 // Checking which type of mutation to apply to the test case
-                mutationType = randomHelper.generateRandomDouble(0, 1);
+                mutationType = this.randomHelper.generateRandomDouble(0, 1);
                 if (mutationType <= 1.0 / 3.0) // Delete test case
                     toDelete.add(currentTestCase); // We delete all of them at the end of the loop
                 else if (mutationType > 1.0 / 3.0 && mutationType <= 2.0 / 3.0) // New Values
-                    currentTestCase.setValues(randomHelper.getRandomValues(currentTestCase.getActions()));
+                    for (Action action : currentTestCase.getActions())
+                        this.randomHelper.generateRandomValues(action);
                 else { // New method
                     ArrayList<Action> actions = currentTestCase.getActions();
-                    ArrayList<String> values = currentTestCase.getValues();
-                    int nr_params = actions.get(1).getParamTypes().size();
-                    // Clear the current values and choose a new method different from the current one
-                    values.subList(values.size() - nr_params, values.size()).clear();
+                    // Choose a new method different from the current one
                     MethodAction oldMethod = (MethodAction) actions.remove(1); // Remove the old method
-                    CtMethod<?> method = spoonParser.getRandomMethod();
-                    if (spoonParser.getMethods().size() > 1)
+                    CtMethod<?> method = this.spoonParser.getRandomMethod();
+                    if (this.spoonParser.getTestableMethods().size() > 1)
                         while (oldMethod.getMethodName().equals(method.getSimpleName()))
-                            method = spoonParser.getRandomMethod();
+                            method = this.spoonParser.getRandomMethod();
 
                     // Make sure that the variable name in the method is different from the one in the constructor
-                    String varn = randomHelper.generateRandomVarName(varNameLength);
+                    String varn = this.randomHelper.generateRandomVarName(this.varNameLength);
                     String calln = actions.get(0).getVarName();
                     while (varn.equals(calln))
-                        varn = randomHelper.generateRandomVarName(varNameLength);
+                        varn = this.randomHelper.generateRandomVarName(this.varNameLength);
 
-                    // Initialize the new method and add the new values
+                    // Initialize the new method and generate new values
                     MethodAction newMethod = new MethodAction(method, calln, varn);
-                    values.addAll(randomHelper.getRandomValues(newMethod));
+                    this.randomHelper.generateRandomValues(newMethod);
                     actions.add(newMethod); // Add the new method to the test case actions
                     currentTestCase.setTestedMethodName(method.getSimpleName());
                     currentTestCase.setActions(actions);
-                    currentTestCase.setValues(values);
                 }
             }
         }
@@ -317,12 +338,12 @@ public class GA {
             testCases.remove(testCase);
 
         // Add new test cases to the suite
-        double additionProb = initialAdditionProb;
-        double additionRandom = randomHelper.generateRandomDouble(0, 1);
-        while (additionProb >= additionRandom && testCases.size() < maxSuiteLength) {
+        double additionProb = this.initialAdditionProb;
+        double additionRandom = this.randomHelper.generateRandomDouble(0, 1);
+        while (additionProb >= additionRandom && testCases.size() < this.maxSuiteLength) {
             testCases.add(this.generateRandomTestCase());
             additionProb = additionProb * additionProb;
-            additionRandom = randomHelper.generateRandomDouble(0, 1);
+            additionRandom = this.randomHelper.generateRandomDouble(0, 1);
         }
         testSuite.setTestCases(testCases);
         // Validate the outcome and return the mutated chromosome
@@ -337,12 +358,12 @@ public class GA {
         for (TestCase testCase : testCases) {
             for (TestCase other : testCases) {
                 if (!testCase.equals(other)) {
-                    // Checking for the constructor's variable name to be different than the other's variable names
+                    // Checking for the constructor's variable name to be different from the other's variable names
                     if (testCase.getActions().get(0).getVarName().equals(other.getActions().get(0).getVarName()) ||
-                        testCase.getActions().get(0).getVarName().equals(other.getActions().get(1).getVarName())) {
-                        String varn = randomHelper.generateRandomVarName(varNameLength);
+                            testCase.getActions().get(0).getVarName().equals(other.getActions().get(1).getVarName())) {
+                        String varn = this.randomHelper.generateRandomVarName(this.varNameLength);
                         while (varn.equals(other.getActions().get(0).getVarName()) || varn.equals(other.getActions().get(1).getVarName()))
-                            varn = randomHelper.generateRandomVarName(varNameLength);
+                            varn = this.randomHelper.generateRandomVarName(this.varNameLength);
                         testCase.getActions().get(0).setVarName(varn);
                         MethodAction methodAction = (MethodAction) testCase.getActions().get(1);
                         methodAction.setCallName(varn);
@@ -351,9 +372,9 @@ public class GA {
                     // Checking for the method's variable name to be different from the other's variable names
                     if (testCase.getActions().get(1).getVarName().equals(other.getActions().get(0).getVarName()) ||
                             testCase.getActions().get(1).getVarName().equals(other.getActions().get(1).getVarName())) {
-                        String varn = randomHelper.generateRandomVarName(varNameLength);
+                        String varn = this.randomHelper.generateRandomVarName(this.varNameLength);
                         while (varn.equals(other.getActions().get(0).getVarName()) || varn.equals(other.getActions().get(1).getVarName()))
-                            varn = randomHelper.generateRandomVarName(varNameLength);
+                            varn = this.randomHelper.generateRandomVarName(this.varNameLength);
                         testCase.getActions().get(1).setVarName(varn);
                     }
                 }
@@ -365,50 +386,66 @@ public class GA {
 
     // Generating a random population of the given size
     private void generateRandomPopulation() {
-        population = new ArrayList<>();
-        for (int i = 0; i < populationSize; ++i) {
-            TestSuite testSuite = new TestSuite(spoonParser.getClassName());
+        this.population = new ArrayList<>();
+        for (int i = 0; i < this.populationSize; ++i) {
+            TestSuite testSuite = new TestSuite(this.spoonParser.getClassName());
             ArrayList<TestCase> testCases = new ArrayList<>();
             // Generate a random suite with random length
-            int max = randomHelper.generateRandomInteger(maxSuiteLength / 2, maxSuiteLength);
+            int max = this.randomHelper.generateRandomInteger(this.maxSuiteLength / 2, this.maxSuiteLength);
             for (int j = 0; j < max; ++j) {
                 TestCase testCase = this.generateRandomTestCase();
                 testCases.add(testCase);
             }
             testSuite.setTestCases(testCases);
             this.validateChromosome(testSuite);
-            population.add(testSuite);
+            this.population.add(testSuite);
         }
     }
 
     // Generating a random test case
     private TestCase generateRandomTestCase() {
         ArrayList<Action> actions = new ArrayList<>();
-        String calln = randomHelper.generateRandomVarName(varNameLength);
-        ConstructorAction constructorAction = new ConstructorAction(spoonParser.getConstructor(), calln);
-        String varn = randomHelper.generateRandomVarName(varNameLength);
+        String calln = this.randomHelper.generateRandomVarName(this.varNameLength);
+        ConstructorAction constructorAction = new ConstructorAction(this.spoonParser.getTestedClassConstructor(), calln);
+        this.randomHelper.generateRandomValues(constructorAction);
+
+        String varn = this.randomHelper.generateRandomVarName(this.varNameLength);
         while (varn.equals(calln))
-            varn = randomHelper.generateRandomVarName(varNameLength);
-        MethodAction methodAction = new MethodAction(spoonParser.getRandomMethod(), calln, varn);
+            varn = this.randomHelper.generateRandomVarName(this.varNameLength);
+        MethodAction methodAction = new MethodAction(this.spoonParser.getRandomMethod(), calln, varn);
+        this.randomHelper.generateRandomValues(methodAction);
+
         actions.add(constructorAction);
         actions.add(methodAction);
-        ArrayList<String> values = randomHelper.getRandomValues(actions);
-        return new TestCase(methodAction.getMethodName(), actions, values);
+        return new TestCase(methodAction.getMethodName(), actions);
     }
 
     // Evaluating the population
     private void evaluatePopulation() {
-        for (TestSuite testSuite : population)
+        for (TestSuite testSuite : this.population)
             testSuite.setFitness(this.evaluateChromosome(testSuite));
     }
 
     // Evaluating a chromosome
     private double evaluateChromosome(TestSuite testSuite) {
         try {
-            return executor.calculateFitness(testSuite);
+            return this.executor.calculateFitness(testSuite);
         } catch (Exception e) {
             return 0.0;
         }
     }
 
+    // Delete the folder from the given path
+    private void deleteFolder(String path) {
+        File folder = new File(path);
+        File[] files = folder.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                //noinspection ResultOfMethodCallIgnored
+                file.delete();
+            }
+        }
+        //noinspection ResultOfMethodCallIgnored
+        folder.delete();
+    }
 }

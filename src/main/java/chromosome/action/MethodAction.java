@@ -39,7 +39,9 @@ public class MethodAction extends Action {
         copy.setVarName(this.varName);
         copy.setCallName(this.callName);
         copy.setMethodName(this.methodName);
+        copy.setValues(this.values);
         copy.setParamTypes(this.paramTypes);
+        copy.setConstructorParameters(this.constructorParameters);
         return copy;
     }
 
@@ -47,9 +49,9 @@ public class MethodAction extends Action {
     public String toString() {
         String code;
         if (super.getType().equals("void"))
-            code = callName + "." + methodName + "(";
+            code = this.callName + "." + this.methodName + "(" + super.parametersToString() + ");";
         else
-            code = super.getType() + " " + super.getVarName() + " = " + callName + "." + methodName + "(";
+            code = super.getType() + " " + super.getVarName() + " = " + this.callName + "." + this.methodName + "(" + super.parametersToString() + ");";
         return code;
     }
 }
