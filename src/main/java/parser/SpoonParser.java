@@ -28,12 +28,12 @@ public class SpoonParser {
         this.initialization();
     }
 
+    // Initializing the Parser. Parse the class to be tested, verify dependencies and add them as nested classes
     private void initialization() throws IOException {
-        // Step 1:
         ArrayList<String> splitedPath = new ArrayList<>(List.of(this.fullPath.split("\\\\")));
         this.className = splitedPath.get(splitedPath.size() - 1).split("\\.")[0];
         copyClassFile(this.fullPath, this.className);
-        // Step 2:
+
         parseTestClass();
         ArrayList<CtConstructor<?>> constructorsArray = new ArrayList<>(this.testedClass.getConstructors());
         this.constructors = new LinkedHashSet<>(constructorsArray);
@@ -44,11 +44,8 @@ public class SpoonParser {
         ArrayList<CtField<?>> fieldsArray = new ArrayList<>(this.testedClass.getFields());
         this.fields = new LinkedHashSet<>(fieldsArray);
 
-        // Step 3:
         verifyDependecies();
-        // Step 4:
         nestClasses();
-        // Step 5:
         parseTestClass();
     }
 
@@ -74,10 +71,17 @@ public class SpoonParser {
         return iter.next();
     }
 
+    /**
+     * @return the CtConstructor of the class under test
+     */
     public CtConstructor<Object> getTestedClassConstructor() {
         return getConstructorByClassName(this.className);
     }
 
+    /**
+     * @return the CtConstructor of the class with the provided name
+     * @param className The name of the class for which we need to return a CtConstructor
+     */
     public CtConstructor<Object> getConstructorByClassName(String className) {
         CtClass<?> ctClass;
         if (Objects.equals(className, this.className))
@@ -96,6 +100,7 @@ public class SpoonParser {
         return constructor;
     }
 
+    // Copying a Java file to the temporary directory
     private void copyClassFile(String fullPath, String className) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(fullPath));
              BufferedWriter writer = new BufferedWriter(new FileWriter(this.origDirectory + "\\" + className + ".java"))) {
@@ -114,6 +119,7 @@ public class SpoonParser {
         }
     }
 
+    // Parsing the test class
     private void parseTestClass() {
         this.launcher = new Launcher();
         this.launcher.addInputResource(this.origDirectory + "\\" + this.className + ".java");
@@ -123,6 +129,7 @@ public class SpoonParser {
         this.launcher = null;
     }
 
+    // Verifying the dependencies and parsing them
     private void verifyDependecies() throws IOException {
         ArrayList<String> primitives = new ArrayList<>(Arrays.asList("void", "int", "Integer", "float", "Float", "double", "Double", "boolean", "Boolean", "String"));
         for (CtConstructor<?> constructor : this.constructors) {
@@ -166,6 +173,7 @@ public class SpoonParser {
         this.launcher = null;
     }
 
+    // Adding the dependencies of the class under test as nested classes
     private void nestClasses() throws IOException {
         for (String className : this.nestedClasses.keySet()) {
             StringBuilder sourceContent = new StringBuilder();

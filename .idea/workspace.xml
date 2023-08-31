@@ -8,24 +8,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1a78db91-db32-49e8-9cb4-335e082251bf" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/chromosome/TestCase.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/chromosome/TestCase.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/chromosome/TestSuite.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/chromosome/TestSuite.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/chromosome/action/Action.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/chromosome/action/Action.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/chromosome/action/ConstructorAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/chromosome/action/ConstructorAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/chromosome/action/MethodAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/chromosome/action/MethodAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/controller/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/controller/MainController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/executor/TestSuiteExecutor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/executor/TestSuiteExecutor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ga/GA.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ga/GA.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/parser/SpoonParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/parser/SpoonParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/util/RandomHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/util/RandomHelper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/writer/ResultWriter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/writer/ResultWriter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/config.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/scene.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/scene.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,6 +97,7 @@
       <workItem from="1692894793674" duration="689000" />
       <workItem from="1692896947376" duration="3940000" />
       <workItem from="1693003583011" duration="13497000" />
+      <workItem from="1693471434968" duration="1487000" />
     </task>
     <servers />
   </component>
