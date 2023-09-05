@@ -138,6 +138,8 @@ public class GA {
 
     // Initializing the algorithm. Create necessary classes and generate random population
     private void initialize() throws IOException {
+        if (Files.exists(Paths.get(this.runDirectory)))
+            this.deleteFolder(this.runDirectory);
         if (Files.exists(Paths.get(this.origDirectory)))
             this.deleteFolder(this.origDirectory);
         if (Files.exists(Paths.get(this.spoonDirectory)))
