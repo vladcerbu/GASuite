@@ -1,3 +1,2 @@
-# GA-Suite - Java Test Case Generation
-  Dissertation application - 2023
-  Version 2.0
+# GA-Suite 2.0 - Java Test Case Generation
+  Dissertation Thesis Application - 2023
